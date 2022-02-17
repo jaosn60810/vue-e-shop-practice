@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       user: {
-        username: '' + 5,
+        username: '',
         password: '',
       },
     };
