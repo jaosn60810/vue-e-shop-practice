@@ -35,23 +35,32 @@
             >
               編輯
             </button>
-            <button class="btn btn-outline-danger btn-sm">刪除</button>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              @click="openDelProductModal(item)"
+            >
+              刪除
+            </button>
           </div>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <!-- modal -->
+  <!-- 新增/編輯 modal -->
   <ProductModal
     ref="productModal"
     :product="tempProduct"
     @update-product="updateProduct"
   ></ProductModal>
+
+  <!-- 刪除 modal -->
+  <DelModal :item="tempProduct" ref="delModal" @del-item="delProduct" />
 </template>
 
 <script>
-import ProductModal from '../components/ProductModal.vue';
+import ProductModal from '@/components/ProductModal.vue';
+import DelModal from '@/components/DelModal.vue';
 
 export default {
   data() {
@@ -64,6 +73,7 @@ export default {
   },
   components: {
     ProductModal,
+    DelModal,
   },
   methods: {
     getProducts() {
@@ -91,6 +101,12 @@ export default {
       const productComponent = this.$refs.productModal;
       productComponent.showModal();
     },
+    // 開啟刪除 Modal
+    openDelProductModal(item) {
+      this.tempProduct = { ...item };
+      const delComponent = this.$refs.delModal;
+      delComponent.showModal();
+    },
     updateProduct(item) {
       this.tempProduct = item;
       // 新增
@@ -113,6 +129,15 @@ export default {
         .catch((err) => {
           alert(err.data.message);
         });
+    },
+    delProduct() {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
+      this.$http.delete(url).then((response) => {
+        console.log(response.data);
+        const delComponent = this.$refs.delModal;
+        delComponent.hideModal();
+        this.getProducts();
+      });
     },
   },
   created() {
