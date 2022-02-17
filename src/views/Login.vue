@@ -53,10 +53,11 @@ export default {
       this.$http
         .post(api, this.user)
         .then((res) => {
-          const { token, expired } = res.data;
-          document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
-
-          alert(res.data.message);
+          if (res.data.success) {
+            const { token, expired } = res.data;
+            document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+            this.$router.push('/dashboard');
+          }
         })
         .catch((err) => {
           alert(err.data.message);
