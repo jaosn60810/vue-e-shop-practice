@@ -53,10 +53,13 @@ export default {
       this.$http
         .post(api, this.user)
         .then((res) => {
+          const { token, expired } = res.data;
+          document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+
           alert(res.data.message);
         })
         .catch((err) => {
-          console.log(err.data.message);
+          alert(err.data.message);
         });
     },
   },
