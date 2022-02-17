@@ -39,14 +39,24 @@
                   >或 上傳圖片
                   <i class="fas fa-spinner fa-spin"></i>
                 </label>
-                <input type="file" id="customFile" class="form-control" />
+                <input
+                  type="file"
+                  id="customFile"
+                  class="form-control"
+                  ref="fileInput"
+                  @change="uploadFile"
+                />
               </div>
-              <img class="img-fluid" :src="tempProduct.imageUrl" alt="" />
+              <img
+                class="img-fluid"
+                :src="tempProduct.imageUrl"
+                alt="tempProduct.title"
+              />
               <!-- 延伸技巧，多圖 -->
               <div class="mt-5" v-if="tempProduct.images">
                 <div
                   class="mb-3 input-group"
-                  v-for="(image, key) in tempProdcut.imagesUrl"
+                  v-for="(image, key) in tempProduct.images"
                   :key="image"
                 >
                   <input
@@ -55,12 +65,25 @@
                     placeholder="請輸入連結"
                     v-model="tempProduct.images[key]"
                   />
-                  <button type="button" class="btn btn-outline-danger">
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="tempProduct.images.pop()"
+                  >
                     移除
                   </button>
                 </div>
-                <div>
-                  <button class="btn btn-outline-primary btn-sm d-block w-100">
+
+                <div
+                  v-if="
+                    tempProduct.images[tempProduct.images.length - 1] ||
+                    !tempProduct.images.length
+                  "
+                >
+                  <button
+                    class="btn btn-outline-primary btn-sm d-block w-100"
+                    @click="tempProduct.images.push('')"
+                  >
                     新增圖片
                   </button>
                 </div>
@@ -199,6 +222,10 @@ export default {
   watch: {
     product() {
       this.tempProduct = this.product;
+      // 多圖範例
+      if (!this.tempProduct.images) {
+        this.tempProduct.images = [];
+      }
     },
   },
   data() {
@@ -213,6 +240,25 @@ export default {
     },
     hideModal() {
       this.modal.hide();
+    },
+    uploadFile() {
+      const uploadedFile = this.$refs.fileInput.files[0];
+
+      const formData = new FormData();
+      formData.append('file-to-upload', uploadedFile);
+
+      const url = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/upload`;
+
+      this.$http
+        .post(url, formData)
+        .then((res) => {
+          if (res.data.success) {
+            this.tempProduct.imageUrl = res.data.imageUrl;
+          }
+        })
+        .catch((err) => {
+          alert(err.response);
+        });
     },
   },
   mounted() {
