@@ -1,11 +1,7 @@
 <template>
   <!-- 建立產品 -->
-  <div class="text-end">
-    <button
-      class="btn btn-primary"
-      type="button"
-      @click="$refs.productModal.showModal()"
-    >
+  <div class="text-end mt-3">
+    <button class="btn btn-primary" type="button" @click="openModal">
       新增產品
     </button>
   </div>
@@ -42,7 +38,11 @@
   </table>
 
   <!-- modal -->
-  <ProductModal ref="productModal"></ProductModal>
+  <ProductModal
+    ref="productModal"
+    :product="tempProduct"
+    @update-product="updateProduct"
+  ></ProductModal>
 </template>
 
 <script>
@@ -53,6 +53,7 @@ export default {
     return {
       products: [],
       pagination: {},
+      tempProduct: {},
     };
   },
   components: {
@@ -69,6 +70,26 @@ export default {
             this.products = res.data.products;
             this.pagination = res.data.pagination;
           }
+        })
+        .catch((err) => {
+          alert(err.data.message);
+        });
+    },
+    openModal() {
+      this.tempProduct = {};
+      const productComponent = this.$refs.productModal;
+      productComponent.showModal();
+    },
+    updateProduct(item) {
+      this.tempProduct = item;
+      const api = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/product`;
+      const productComponent = this.$refs.productModal;
+      this.$http
+        .post(api, { data: this.tempProduct })
+        .then((res) => {
+          console.log(res);
+          productComponent.hideModal();
+          this.getProducts();
         })
         .catch((err) => {
           alert(err.data.message);
