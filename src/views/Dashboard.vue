@@ -1,8 +1,11 @@
 <template>
-  <div>dashboard</div>
+  <Navbar></Navbar>
+  <router-view />
 </template>
 
 <script>
+import Navbar from '../components/Navbar.vue';
+
 export default {
   created() {
     const token = document.cookie.replace(
@@ -19,6 +22,7 @@ export default {
       }
     });
   },
+  components: { Navbar },
 };
 </script>
 
