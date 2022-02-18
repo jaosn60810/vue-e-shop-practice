@@ -1,4 +1,6 @@
 <template>
+  <loading :active="isLoading" :z-index="1100"></loading>
+
   <!-- 建立產品 -->
   <div class="text-end mt-3">
     <button class="btn btn-primary" type="button" @click="openModal(true)">
@@ -69,6 +71,7 @@ export default {
       pagination: {},
       tempProduct: {},
       isNew: false,
+      isLoading: false,
     };
   },
   components: {
@@ -78,7 +81,7 @@ export default {
   methods: {
     getProducts() {
       const api = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/products`;
-
+      this.isLoading = true;
       this.$http
         .get(api)
         .then((res) => {
@@ -89,6 +92,9 @@ export default {
         })
         .catch((err) => {
           alert(err.data.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     openModal(isNew, item) {
@@ -120,6 +126,9 @@ export default {
       }
 
       const productComponent = this.$refs.productModal;
+
+      this.isLoading = true;
+
       this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           console.log(res);
@@ -128,16 +137,29 @@ export default {
         })
         .catch((err) => {
           alert(err.data.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     delProduct() {
+      this.isLoading = true;
+
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
-      this.$http.delete(url).then((response) => {
-        console.log(response.data);
-        const delComponent = this.$refs.delModal;
-        delComponent.hideModal();
-        this.getProducts();
-      });
+      this.$http
+        .delete(url)
+        .then((response) => {
+          console.log(response.data);
+          const delComponent = this.$refs.delModal;
+          delComponent.hideModal();
+          this.getProducts();
+        })
+        .catch((err) => {
+          alert(err.data.message);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
   },
   created() {

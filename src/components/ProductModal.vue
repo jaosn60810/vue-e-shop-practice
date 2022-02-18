@@ -8,6 +8,8 @@
     aria-hidden="true"
     ref="modal"
   >
+    <loading :active="isLoading"></loading>
+
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content border-0">
         <div class="modal-header bg-dark text-white">
@@ -228,6 +230,7 @@ export default {
     return {
       modal: {},
       tempProduct: {},
+      isLoading: false,
     };
   },
   methods: {
@@ -237,6 +240,8 @@ export default {
       const formData = new FormData();
       formData.append('file-to-upload', uploadedFile);
 
+      this.isLoading = true;
+
       const url = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/upload`;
 
       this.$http
@@ -244,10 +249,14 @@ export default {
         .then((res) => {
           if (res.data.success) {
             this.tempProduct.imageUrl = res.data.imageUrl;
+            this.$refs.fileInput.value = '';
           }
         })
         .catch((err) => {
           alert(err.response);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
