@@ -49,6 +49,9 @@
     </tbody>
   </table>
 
+  <!-- 分頁元件 -->
+  <Pagination :pages="pagination" @emit-pages="getProducts"></Pagination>
+
   <!-- 新增/編輯 modal -->
   <ProductModal
     ref="productModal"
@@ -63,6 +66,7 @@
 <script>
 import ProductModal from '@/components/ProductModal.vue';
 import DelModal from '@/components/DelModal.vue';
+import Pagination from '@/components/Pagination.vue';
 
 export default {
   data() {
@@ -77,11 +81,12 @@ export default {
   components: {
     ProductModal,
     DelModal,
+    Pagination,
   },
   inject: ['emitter'],
   methods: {
-    getProducts() {
-      const api = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/products`;
+    getProducts(page = 1) {
+      const api = `${process.env.VUE_APP_API}/v2/api/${process.env.VUE_APP_PATH}/admin/products?page=${page}`;
       this.isLoading = true;
       this.$http
         .get(api)
@@ -160,17 +165,28 @@ export default {
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.tempProduct.id}`;
       this.$http
         .delete(url)
-        .then((response) => {
-          console.log(response.data);
+        .then((res) => {
           const delComponent = this.$refs.delModal;
           delComponent.hideModal();
-          this.getProducts();
+          if (res.data.success) {
+            this.emitter.emit('push-message', {
+              style: 'success',
+              title: '刪除成功',
+            });
+          } else {
+            this.emitter.emit('push-message', {
+              style: 'danger',
+              title: '刪除失敗',
+              content: res.data.message.join('、'),
+            });
+          }
         })
         .catch((err) => {
           alert(err.data.message);
         })
         .finally(() => {
           this.isLoading = false;
+          this.getProducts();
         });
     },
   },
