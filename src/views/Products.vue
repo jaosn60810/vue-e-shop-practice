@@ -138,18 +138,7 @@ export default {
       this.$http[httpMethod](api, { data: this.tempProduct })
         .then((res) => {
           productComponent.hideModal();
-          if (res.data.success) {
-            this.emitter.emit('push-message', {
-              style: 'success',
-              title: '更新成功',
-            });
-          } else {
-            this.emitter.emit('push-message', {
-              style: 'danger',
-              title: '更新失敗',
-              content: res.data.message.join('、'),
-            });
-          }
+          this.$httpMessageState(res, '更新產品');
         })
         .catch((err) => {
           alert(err.data.message);
@@ -168,18 +157,7 @@ export default {
         .then((res) => {
           const delComponent = this.$refs.delModal;
           delComponent.hideModal();
-          if (res.data.success) {
-            this.emitter.emit('push-message', {
-              style: 'success',
-              title: '刪除成功',
-            });
-          } else {
-            this.emitter.emit('push-message', {
-              style: 'danger',
-              title: '刪除失敗',
-              content: res.data.message.join('、'),
-            });
-          }
+          this.$httpMessageState(res, '刪除產品');
         })
         .catch((err) => {
           alert(err.data.message);
